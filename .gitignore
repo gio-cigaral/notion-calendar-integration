@@ -102,3 +102,12 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Credentials files
+credentials.json
+
+# Workspace files
+.vscode
+
+# Temp files
+.tmp/
