@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
-import path from 'path';
 import http from 'http';
 import url from 'url';
 import open from 'open';
@@ -11,34 +10,18 @@ import { google } from 'googleapis';
 
 dotenv.config();
 
-const __dirname = path.resolve();
+// TODO: move all initialisation and authentication logic to relevant controller
+// TODO: initialise environment (dotenv) then call main controller (SyncController)
 
+// Initialise Notion Client
 const notion = new Client({ auth: process.env.NOTION_KEY });
-
 const databaseId = process.env.NOTION_TEST_DATABASE_ID;
 
-(async () => {
-  const response = await notion.databases.query({
-    database_id: databaseId
-  });
-  console.log(response);
-})();
-
-(async () => {
-  const blockId = 'eaf355e7-de64-4f00-b062-f29f93ba10b7';
-  const response = await notion.blocks.children.list({
-    block_id: blockId,
-    page_size: 50,
-  });
-  console.log(response);
-})();
-
-// --------------------------------------------------------------------------------------------
-
+// Initialise and Authenticate Google Tasks Client
 const tasks = google.tasks('v1');
 
-const filePath = process.env.GOOGLE_CREDENTIALS_FILE
-const rawKeys = fs.readFileSync(filePath);
+const googleCredentials = process.env.GOOGLE_CREDENTIALS_FILE
+const rawKeys = fs.readFileSync(googleCredentials);
 const keys = JSON.parse(rawKeys);
 
 /**
@@ -53,10 +36,10 @@ const oauth2Client = new google.auth.OAuth2(
 oauth2Client.on('tokens', (tokens) => {
   if (tokens.refresh_token) {
     keys.refresh_token = tokens.refresh_token;
-    fs.writeFile(filePath, JSON.stringify(keys, null, 2), function writeJSON(err) {
+    fs.writeFile(googleCredentials, JSON.stringify(keys, null, 2), function writeJSON(err) {
       if (err) return console.log(err);
       console.log(JSON.stringify(keys));
-      console.log('writing to ' + filePath);
+      console.log('writing to ' + googleCredentials);
     });
 
     console.log("Refresh Token: " + tokens.refresh_token);
@@ -115,6 +98,7 @@ async function authenticate(scopes) {
   });
 }
 
+// GET: all tasks in a list
 async function runSample() {
   const res = await tasks.tasks.list({
     tasklist: 'MW96S2E2ci1OaTJ6a0VoYw'
@@ -129,5 +113,5 @@ const scopes = [
 ];
 
 authenticate(scopes)
-  .then(client => runSample(client))
+  .then(client => runSample(client))  // TODO: replace runSample with relevant function
   .catch(console.error);
