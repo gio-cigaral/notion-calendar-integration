@@ -8,11 +8,6 @@ import { google } from 'googleapis';
 
 import GoogleTask from '../models/GoogleTask.js';
 
-/**
- * TODO: create data collection for tasks retrieved
- * ? may not need a separate data collection and just handle it functionally (i.e. return and use the array directly)
- */
-
 const filePath = process.env.GOOGLE_CREDENTIALS_FILE;
 const rawKeys = fs.readFileSync(filePath);
 const keys = JSON.parse(rawKeys);
@@ -32,6 +27,9 @@ export default class GoogleController {
       keys.redirect_uris[1]
     );
 
+    // Tasks retrieved -> [ID, GoogleTask]
+    this.retrievedTasks = new Map();
+
     // Permission scopes
     this.scopes = [
       'https://www.googleapis.com/auth/tasks',
@@ -43,7 +41,7 @@ export default class GoogleController {
   /**
    * Configure OAuth2 client and authenticate
    */
-  configure() {
+  async configure() {
     // Update OAuth2 client with new refresh token
     this.oauth2Client.on('tokens', (tokens) => {
       if (tokens.refresh_token) {
@@ -53,9 +51,6 @@ export default class GoogleController {
           if (err) {
             return console.log(err);
           }
-
-          console.log(JSON.stringify(keys));
-          console.log('writing to ' + filePath);
         });
 
         console.log("Updated Refresh Token: " + tokens.refresh_token);
@@ -65,9 +60,10 @@ export default class GoogleController {
 
     google.options({ auth: this.oauth2Client });
 
-    this.authenticate(this.scopes)
-      .then(client => this.runSample(client))
+    await this.authenticate(this.scopes)
       .catch(console.error);
+    
+    console.log("Google - OAuth client authenticated");
   }
 
   /**
@@ -91,7 +87,7 @@ export default class GoogleController {
         // grab the url that will be used for authorization
         const authorizeUrl = this.oauth2Client.generateAuthUrl({
           access_type: 'offline',
-          scope: this.scopes.join(' '),
+          scope: scopes.join(' '),
         });
 
         const server = http
@@ -127,13 +123,38 @@ export default class GoogleController {
   }
 
   // GET: all tasks in a list
-  async runSample() {
+  async getTasks() {
     const res = await this.tasks.tasks.list({
       showCompleted: true,
       showHidden: true,
       tasklist: process.env.GOOGLE_TEST_TASK_LIST
-    })
-    console.log(res.data);
+    });
+
+    this.parseResponse(res.data);
+
+    // ? possibly return map here?
+    return this.retrievedTasks;
+  }
+
+  parseResponse(data) {
+    const results = data.items;
+
+    results.forEach(item => {
+      let id = item.id;
+      let title = item.title;
+      let notes = ('notes' in item) ? item.notes : null;
+      let status = item.status;
+      let due = ('due' in item) ? item.due : null;
+      let completed = ('completed' in item) ? item.completed : null;
+      let lastEdited = item.updated;
+      let url = item.selfLink;
+
+      let task = new GoogleTask(id, title, notes, status, due, completed, lastEdited, url);
+      task.formatProperties();
+      task.toString();
+
+      this.retrievedTasks.set(id, task);
+    });
   }
 
 }

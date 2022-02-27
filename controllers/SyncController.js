@@ -22,12 +22,38 @@ export default class SyncController {
   }
 
   async sync() {
-    // Get tasks from controllers in parallel
-    await this.notionController.getTasks();
+    // Configure and authenticate Google OAuth 2.0 client
     await this.googleController.configure();
+
+    // Get tasks from controllers in parallel
     // Wait for both tasks to finish
+    let [notionResult, googleResult] = await Promise.all([
+      this.notionController.getTasks(),
+      this.googleController.getTasks()
+    ]);
+
+    console.log("NOTION RESULT: " + notionResult);
+    console.log("GOOGLE RESULT: " + googleResult);
+
     // Compare retrieved lists -> generate 3 lists
+    /**
+     * Steps:
+     *  1) Iterate over one map (choose any - maybe the longest?) and do a comparison
+     *  2) Based on comparison move item(s) to 1 of 3 new maps
+     *  3) IF the shorter map is chosen - place the leftover items of the longer map into the relevant map
+     */
+    // for (const [key, value] of Object.entries()) {
+
+    // }
+
     // Resolve lists
+    
+
     // Clean up
+
+  }
+
+  compare(notionTask, googleTask) {
+    
   }
 }

@@ -17,14 +17,14 @@ export default class NotionTask {
 
     for (const [key, value] of Object.entries(this.properties)) {
       switch(key) {
-        case "Name":
-          this.title = value.title.plain_text;
+        case "Task Name":
+          this.title = (value.title.length) ? value.title[0].plain_text : null;
           break;
         case "Project":
-          this.project = value.multi_select;
+          this.project = (value.multi_select.length) ? value.multi_select[0].name : null;
           break;
         case "Due Date":
-          this.date = value.date.start;
+          this.date = (value.date) ? value.date.start : null;
           break;
         case "Refined":
           this.refined = value.checkbox;
@@ -34,6 +34,20 @@ export default class NotionTask {
           break;
       }
     }
+  }
+
+  toString() {
+    console.log("----------------------------------");
+    console.log("NOTION TASK");
+    console.log("   ID: " + this.id);
+    console.log("   Last Edited: " + this.lastEdited);
+    console.log("   URL: " + this.url);
+    console.log("   Title: " + this.title);
+    console.log("   Project: " + this.project);
+    console.log("   Date: " + this.date);
+    console.log("   Refined: " + this.refined);
+    console.log("   Done: " + this.done);
+    console.log("----------------------------------");
   }
 
 }
