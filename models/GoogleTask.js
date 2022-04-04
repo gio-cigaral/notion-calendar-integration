@@ -13,6 +13,8 @@ export default class GoogleTask {
 
   formatProperties() {
     // Split up notes -> Line 1 = Notion Project | Line 2 = Notion ID | Line 3 = Notion URL
+    // ? main matching point should be Notion ID -> in that case is Notion Project still relevant?
+    // * possible changes between sources should be in the [Task Title] and the [Task Due Date]
     let project = null;
     let id = null;
     let url = null;
