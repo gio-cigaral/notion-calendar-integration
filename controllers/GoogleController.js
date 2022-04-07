@@ -74,7 +74,7 @@ export default class GoogleController {
   async authenticate(scopes) {
     return new Promise((resolve, reject) => {
       // Check if a valid refresh token exists
-      // TODO: may need to update IF statement -> may cause an error when attempting to authenticate w/ expired refresh token
+      // TODO: need to update IF statement -> causes an error when attempting to authenticate w/ expired refresh token
       if (keys.refresh_token != "") {
         console.log("Found refresh token: " + keys.refresh_token);
 
@@ -153,7 +153,14 @@ export default class GoogleController {
       task.formatProperties();
       task.toString();
 
-      this.retrievedTasks.set(id, task);
+      // ? Create a 'pre-processing' method to handle initial sorting checks
+      // ! Use task.notionId as the map key -> Creating a manual "hash map" implementation to reduce time-complexity on sorting
+      if ('notionId' in task) {
+        this.retrievedTasks.set(task.notionId, task);
+      } else {
+        // ! IF NotionID doesn't exist then can immediately separate into a different map
+        this.retrievedTasks.set(id, task);
+      }
     });
   }
 

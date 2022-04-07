@@ -12,7 +12,7 @@ export default class GoogleTask {
   }
 
   formatProperties() {
-    // Split up notes -> Line 1 = Notion Project | Line 2 = Notion ID | Line 3 = Notion URL
+    // Split up notes -> Line 1 = Notion ID | Line 2 = Notion URL | Line 3 = Notion Project
     // ? main matching point should be Notion ID -> in that case is Notion Project still relevant?
     // * possible changes between sources should be in the [Task Title] and the [Task Due Date]
     let project = null;
@@ -21,9 +21,9 @@ export default class GoogleTask {
 
     if (this.notes) {
       const noteProperties = this.notes.split(/\r?\n/);
-      if (noteProperties.length > 0) project = noteProperties[0];
-      if (noteProperties.length > 1) id = noteProperties[1];
-      if (noteProperties.length > 2) url = noteProperties[2];
+      if (noteProperties.length > 0) id = noteProperties[0];
+      if (noteProperties.length > 1) url = noteProperties[1];
+      if (noteProperties.length > 2) project = noteProperties[2];
     }
     
     this.notionProject = project;
@@ -43,9 +43,9 @@ export default class GoogleTask {
     console.log("   Last Edited: " + this.lastEdited);
     console.log("   URL: " + this.url);
     console.log("   NOTION PROPERTIES");
-    console.log("       Project: " + this.notionProject);
     console.log("       ID: " + this.notionId);
     console.log("       URL: " + this.notionUrl);
+    console.log("       Project: " + this.notionProject);
     console.log("----------------------------------");
   }
 
