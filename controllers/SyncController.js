@@ -42,9 +42,11 @@ export default class SyncController {
      *  2) Based on comparison move item(s) to 1 of 3 new maps
      *  3) IF the shorter map is chosen - place the leftover items of the longer map into the relevant map
      */
-    // for (const [key, value] of Object.entries()) {
-
-    // }
+    for (const [notionKey, notionVal] of notionResult.entries()) {
+      for (const [googleKey, googleVal] of googleResult.entries()) {
+        
+      }
+    }
 
     // Resolve lists
     
